@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Study 001</string>
+    <string name="editText">Name</string>
+
+    <string name="name">ID</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="passwordAgain">Password again</string>
+    <string name="save">SAVE</string>
+    <string name="login">Login</string>
+    <string name="user_email">user Id</string>
+    <string name="user_password">user password</string>
+    <string name="user_info">User Info.</string>
+    <string name="user_nickname">user nickname</string>
+    <string name="deleteData">Delete Profile</string>
+</resources>
