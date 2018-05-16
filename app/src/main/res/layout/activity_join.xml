@@ -31,13 +31,25 @@
 
     </android.support.v7.widget.Toolbar>
 
-    <EditText
-        android:id="@+id/editTextName"
+    <TextView
+        android:id="@+id/checkId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
+        android:text=""
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_red_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+    <EditText
+        android:id="@+id/editTextId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:background="@drawable/custom_edit_text_bg"
         android:drawablePadding="10dp"
         android:drawableStart="@drawable/ic_username"
@@ -46,10 +58,11 @@
         android:inputType="textPersonName"
         android:textAlignment="textStart"
         android:textColor="#404040"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/checkId"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintStart_toStartOf="@+id/checkId"
+        app:layout_constraintTop_toBottomOf="@+id/checkId" />
+
 
     <EditText
         android:id="@+id/editTextEmail"
@@ -63,10 +76,9 @@
         android:hint="@string/email"
         android:inputType="textEmailAddress"
         android:textColor="#404040"
-        app:layout_constraintEnd_toEndOf="@+id/editTextName"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/editTextName"
-        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
+        app:layout_constraintEnd_toEndOf="@+id/editTextId"
+        app:layout_constraintStart_toStartOf="@+id/editTextId"
+        app:layout_constraintTop_toBottomOf="@+id/editTextId" />
 
     <EditText
         android:id="@+id/editTextPassword"
@@ -80,9 +92,8 @@
         android:hint="@string/password"
         android:inputType="textPassword"
         android:textColor="#404040"
-        app:layout_constraintEnd_toEndOf="@+id/editTextName"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/editTextName"
+        app:layout_constraintEnd_toEndOf="@+id/editTextEmail"
+        app:layout_constraintStart_toStartOf="@+id/editTextEmail"
         app:layout_constraintTop_toBottomOf="@+id/editTextEmail" />
 
     <EditText
@@ -97,9 +108,8 @@
         android:hint="@string/passwordAgain"
         android:inputType="textPassword"
         android:textColor="#404040"
-        app:layout_constraintEnd_toEndOf="@+id/editTextName"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/editTextName"
+        app:layout_constraintEnd_toEndOf="@+id/editTextPassword"
+        app:layout_constraintStart_toStartOf="@+id/editTextPassword"
         app:layout_constraintTop_toBottomOf="@+id/editTextPassword" />
 
 
