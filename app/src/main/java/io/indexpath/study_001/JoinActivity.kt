@@ -31,10 +31,10 @@ class JoinActivity : AppCompatActivity() {
                 .compose(retryWhenError {
                     checkId.text = it.message
                 })
-                .subscribe()
+                .subscribe ()
 
         /** 이메일 체크 */
-        RxTextView.afterTextChangeEvents(editTextEmail)
+        val cEmail = RxTextView.afterTextChangeEvents(editTextEmail)
                 .skipInitialValue()
                 .map {
                     checkId.text = ""
@@ -49,7 +49,7 @@ class JoinActivity : AppCompatActivity() {
                 .subscribe()
 
         /** 패스워드 체크 */
-        RxTextView.afterTextChangeEvents(editTextPassword)
+        val cPw1 = RxTextView.afterTextChangeEvents(editTextPassword)
                 .skipInitialValue()
                 .map {
                     checkId.text = ""
@@ -67,8 +67,7 @@ class JoinActivity : AppCompatActivity() {
 
 
         /** 동일한 패스워드인지 체크 */
-
-        RxTextView.afterTextChangeEvents(editTextPasswordAgain)
+        val cPw2 = RxTextView.afterTextChangeEvents(editTextPasswordAgain)
                 .skipInitialValue()
                 .map {
                     checkId.text = ""
@@ -91,24 +90,19 @@ class JoinActivity : AppCompatActivity() {
 
                 )
 
-//        /** 패스워드 2 체크 */
-//        RxTextView.afterTextChangeEvents(editTextPassword)
-//                .skipInitialValue()
-//                .map {
-//                    checkId.text = ""
-//                    it.view().text.toString()
-//                }
-//                .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
-//                .compose(CustomPatterns.checkPwPatternRepeat)
-//                .compose(retryWhenError {
-//                    checkId.text = it.message
-//                })
-//                .subscribe()
 
+        /** Sign In observer */
 
-////        button.setOnClickListener {
-////            saveData()
-////        }
+//        val signInEnabled: Observable<Boolean> = Observable.combineLatest(
+//                cId, cEmail, cPw1, cPw2, BiFunction { i, e, p1, p2 -> i && e && p1 && p2 })
+//
+//        signInEnabled.distinctUntilChanged()
+//                .subscribe { enabled -> btn_login_signin.isEnabled = enabled }
+//
+//        signInEnabled.distinctUntilChanged()
+//                .map { b -> if (b) R.color.colorAccent else R.color.colorTextDisabled }
+//                .subscribe { color -> btn_login_signin.backgroundTintList = ContextCompat.getColorStateList(this, color) }
+
 
     }
 
