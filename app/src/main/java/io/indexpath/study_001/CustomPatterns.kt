@@ -94,6 +94,8 @@ class CustomPatterns {
             observable.flatMap {
                 Observable.just(it).map { it.trim() }
                         .filter { it -> passwordTemp.equals(it.toString()) }
+                        //.filter { editTextPassword.toString() == it.toString() || editTextPasswordAgain.toString().equals(it.toString()) }
+                        //.filter { it.toString().equals( editTextPassword.toString()) && editTextPasswordAgain.toString().equals(it.toString()) }
                         .singleOrError()
                         .onErrorResumeNext {
                             if (it is NoSuchElementException) {

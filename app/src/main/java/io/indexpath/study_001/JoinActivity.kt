@@ -3,13 +3,13 @@ package io.indexpath.study_001
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.util.Patterns
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.functions.BiFunction
 import kotlinx.android.synthetic.main.activity_join.*
-
 
 
 class JoinActivity : AppCompatActivity() {
@@ -33,7 +33,13 @@ class JoinActivity : AppCompatActivity() {
 
         val observablePw2 = RxTextView.textChanges(editTextPasswordAgain)
                 .map { t -> CustomPatterns.passwordTemp.equals(t.toString()) }
-                //.map { t -> editTextPassword.toString() == t.toString() }
+                //.map { t -> editTextPassword.toString().equals(t.toString()) }
+
+        //val observablePwCompare = RxTextView.textChanges(editTextPassword)
+                //.map { t -> CustomPatterns.passwordTemp.equals(t.toString()) }
+
+
+
 
         /** 아이디 체크 */
         RxTextView.afterTextChangeEvents(editTextId)
@@ -81,8 +87,27 @@ class JoinActivity : AppCompatActivity() {
                 })
                 .subscribe {
                     CustomPatterns.passwordTemp = it
+                    Log.d(TAG,"onNext1: $it ")
                 }
 
+//        /** 첫번째 패스워드를 수정했을 경우 */
+//        RxTextView.afterTextChangeEvents(editTextPassword)
+//                .skipInitialValue()
+//                .map {
+//                    checkId.text = ""
+//                    it.view().text.toString()
+//                }
+//                //.debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+//                //.compose(CustomPatterns.checkPwPattern)
+//                .compose(CustomPatterns.comparePw)
+//                //.compose(CustomPatterns.checkPwPatternRepeat)
+//                .compose(retryWhenError {
+//                    checkId.text = it.message
+//                })
+//                .subscribe {
+//                    //CustomPatterns.passwordTemp = it
+//                    Log.d(TAG,"onNext2: $it ")
+//                }
 
         /** 동일한 패스워드인지 체크 */
         RxTextView.afterTextChangeEvents(editTextPasswordAgain)
@@ -101,24 +126,7 @@ class JoinActivity : AppCompatActivity() {
 
         /** Sign In observer */
 
-//        val signInEnabled: Observable<Boolean> = Observable.combineLatest(
-//                first.asObservable(),
-//                second.asObservable(),
-//                third.asObservable(),
-//                forth.asObservable()
-//        )
-//        // combine function
-//        { first, second, third, forth->
-//            // verify data and return a boolean
-//            return@subscribe first.toString() != currentName || second.toString() != currentUsername
-//        }
-//                .subscribe({ isValid->
-//                    if (isValid) {
-//                        startActionMode()
-//                    } else {
-//                        finishActionMode()
-//                    }
-//                })
+
 
         val signInEnabled1: Observable<Boolean> = Observable.combineLatest(
                 observableId, observableEmail, BiFunction { i, e -> i && e }
@@ -131,6 +139,11 @@ class JoinActivity : AppCompatActivity() {
         val signInEnabled: Observable<Boolean> = Observable.combineLatest(
                 signInEnabled1, signInEnabled2, BiFunction { s1, s2 -> s1 && s2 }
         )
+
+//        val signInEnabled: Observable<Boolean> = Observable.combineLatest(
+//                signInEnabledWithChangePassword, observablePwCompare, BiFunction { s1, s2 -> s1 && s2 }
+//        )
+
 //        observableId, observableEmail, observablePw1, observablePw2, BiFunction { i, e, p1, p2 -> i && e && p1 && p2 }
 
         signInEnabled.distinctUntilChanged()
