@@ -3,6 +3,7 @@ package io.indexpath.study_001
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.util.Patterns
 import com.jakewharton.rxbinding2.widget.RxTextView
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
@@ -17,6 +18,31 @@ class JoinActivity : AppCompatActivity() {
         setContentView(R.layout.activity_join)
 
         var passwordTemp = ""
+
+        /** 버튼관련 옵저버 */
+        val observableId = RxTextView.textChanges(editTextId)
+                .map { t -> CustomPatterns.idPattern.matcher(t).matches() }
+                .subscribe ()
+
+        val observableEmail = RxTextView.textChanges(editTextEmail)
+                .map { t -> Patterns.EMAIL_ADDRESS.matcher(t).matches() }
+                .subscribe ()
+
+        val observablePw1 = RxTextView.textChanges(editTextPassword)
+                .map { t -> CustomPatterns.pwPattern.matcher(t).matches() }
+                .subscribe ()
+
+        val observablePw2 = RxTextView.textChanges(editTextPasswordAgain)
+                //.map {t -> t}
+//                .flatMap {
+//                    Observable.just(it).map { passwordTemp.equals(it.toString()) }
+//                }
+                .map { it -> passwordTemp.equals(it.toString()) }
+                .subscribe(
+                        { Log.d(TAG,"onNext: $it good!") },
+                        { Log.d(TAG,"onError: ${it.message}") },
+                        { Log.d(TAG,"onComplete") }
+                )
 
         /** 아이디 체크 */
         RxTextView.afterTextChangeEvents(editTextId)
@@ -34,7 +60,7 @@ class JoinActivity : AppCompatActivity() {
                 .subscribe ()
 
         /** 이메일 체크 */
-        val cEmail = RxTextView.afterTextChangeEvents(editTextEmail)
+        RxTextView.afterTextChangeEvents(editTextEmail)
                 .skipInitialValue()
                 .map {
                     checkId.text = ""
@@ -49,7 +75,7 @@ class JoinActivity : AppCompatActivity() {
                 .subscribe()
 
         /** 패스워드 체크 */
-        val cPw1 = RxTextView.afterTextChangeEvents(editTextPassword)
+        RxTextView.afterTextChangeEvents(editTextPassword)
                 .skipInitialValue()
                 .map {
                     checkId.text = ""
@@ -67,7 +93,7 @@ class JoinActivity : AppCompatActivity() {
 
 
         /** 동일한 패스워드인지 체크 */
-        val cPw2 = RxTextView.afterTextChangeEvents(editTextPasswordAgain)
+        RxTextView.afterTextChangeEvents(editTextPasswordAgain)
                 .skipInitialValue()
                 .map {
                     checkId.text = ""
