@@ -15,7 +15,7 @@ class CustomPatterns {
         val pwPattern = Pattern.compile("^(?=.*\\d)(?=.*[~`!@#\$%\\^&*()-])(?=.*[a-z])(?=.*[A-Z]).{8,}")
         val pwPatternRepeat = Pattern.compile("(.)\\1\\1\\1")
 
-        var passwordTemp = ""
+        var passwordTemp = " "
 
 
         val checkIdPattern = ObservableTransformer<String, String> { observable ->
@@ -71,34 +71,16 @@ class CustomPatterns {
             }
         }
 
-        val checkPwPatternRepeat = ObservableTransformer<String, String> { observable ->
-            observable.flatMap {
-                Observable.just(it).map { it.trim() }
-                        .filter { pwPatternRepeat.matcher(it).matches() }
-                        //.filter { pwPatternRepeat.matcher(it).matches() }
-                        .singleOrError()
-                        .onErrorResumeNext {
-                            if (it is NoSuchElementException) {
-                                //idCheckTextView.text = "아이디 패턴 오류"
-                                Single.error(Exception("패스워드에 동일 문자를 연속 4개 이상 사용할 수 없습니다."))
-                            } else {
-                                Single.error(it)
-                            }
-                        }
-                        .toObservable()
-            }
-        }
-
-
-//        val comparePw = ObservableTransformer<String, String> { observable ->
+//        val checkPwPatternRepeat = ObservableTransformer<String, String> { observable ->
 //            observable.flatMap {
-//                Observable.just(it)
-//                        .filter { t -> t.equals(it,ignoreCase = true) }
+//                Observable.just(it).map { it.trim() }
+//                        .filter { pwPatternRepeat.matcher(it).matches() }
+//                        //.filter { pwPatternRepeat.matcher(it).matches() }
 //                        .singleOrError()
 //                        .onErrorResumeNext {
 //                            if (it is NoSuchElementException) {
 //                                //idCheckTextView.text = "아이디 패턴 오류"
-//                                Single.error(Exception("패스워드가 서로 다릅니다."))
+//                                Single.error(Exception("패스워드에 동일 문자를 연속 4개 이상 사용할 수 없습니다."))
 //                            } else {
 //                                Single.error(it)
 //                            }
@@ -108,20 +90,26 @@ class CustomPatterns {
 //        }
 
 
-
-        val lengthGreaterThanSix = ObservableTransformer<String, String> { observable ->
-            observable.map { it.trim() }
-                    .filter { it.length > 6 }
-                    .singleOrError()
-                    .onErrorResumeNext {
-                        if (it is NoSuchElementException) {
-                            Single.error(Exception("길이가 짦음"))
-                        } else {
-                            Single.error(it)
+        val comparePw = ObservableTransformer<String, String> { observable ->
+            observable.flatMap {
+                Observable.just(it).map { it.trim() }
+                        .filter { it -> passwordTemp.equals(it.toString()) }
+                        .singleOrError()
+                        .onErrorResumeNext {
+                            if (it is NoSuchElementException) {
+                                //idCheckTextView.text = "아이디 패턴 오류"
+                                Single.error(Exception("패스워드가 서로 다릅니다."))
+                            } else {
+                                Single.error(it)
+                            }
                         }
-                    }
-                    .toObservable()
+                        .toObservable()
+            }
         }
+
+
+
+
 
 //        fun retryWhenError( onError: (ex: Throwable) -> Unit): ObservableTransformer<String, String> = ObservableTransformer { observable ->
 //            observable.retryWhen { errors ->

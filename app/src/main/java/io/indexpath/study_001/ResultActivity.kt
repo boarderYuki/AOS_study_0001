@@ -14,7 +14,7 @@ class ResultActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_result)
 
-        button.setOnClickListener {
+        buttonSave.setOnClickListener {
             val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
 
             val editor = myPref.edit()
