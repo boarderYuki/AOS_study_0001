@@ -1,15 +1,24 @@
 package io.indexpath.study_001
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.util.Patterns
+import android.widget.Toast
 import com.jakewharton.rxbinding2.widget.RxTextView
+import es.dmoral.toasty.Toasty
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import kotlinx.android.synthetic.main.activity_join.*
+import java.util.concurrent.TimeUnit
+
+
 
 
 class JoinActivity : AppCompatActivity() {
@@ -18,6 +27,10 @@ class JoinActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_join)
 
+        Realm.init(this)
+        val config = RealmConfiguration.Builder().name("person.realm").build()
+        val realm = Realm.getInstance(config)
+        Log.d(TAG, "path: " + realm.path)
         var passwordTemp = ""
 
 
@@ -49,7 +62,7 @@ class JoinActivity : AppCompatActivity() {
                     it.view().text.toString()
                 }
                 // 1초마다 새롭게 시도
-                //.debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+                .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
                 .compose(CustomPatterns.checkIdPattern)
                 .compose(retryWhenError {
                     checkId.text = it.message
@@ -126,8 +139,6 @@ class JoinActivity : AppCompatActivity() {
 
         /** Sign In observer */
 
-
-
         val signInEnabled1: Observable<Boolean> = Observable.combineLatest(
                 observableId, observableEmail, BiFunction { i, e -> i && e }
         )
@@ -152,13 +163,57 @@ class JoinActivity : AppCompatActivity() {
                 .map { b -> if (b) R.color.colorAccent else R.color.material_grey_600 }
                 .subscribe { color -> buttonSave.backgroundTintList =
                         ContextCompat.getColorStateList(this, color) }
+
+
+
+        buttonSave.setOnClickListener {
+            //saveData()
+            /** 렘 저장 */
+//            val config = RealmConfiguration.Builder().name("person.realm").build()
+//            val realm = Realm.getInstance(config)
+//            Log.d("TAG", "path: " + realm.path)
+
+            realm.beginTransaction()
+            val number = realm.where(Person::class.java).count() + 1
+
+            val person = realm.createObject(Person::class.java, number)
+
+            person.userId = editTextId.text.toString()
+            person.email = editTextEmail.text.toString()
+            person.password = editTextPassword.text.toString()
+            realm.commitTransaction()
+
+            Toasty.success(this, "저장 성공", Toast.LENGTH_SHORT, true).show();
+
+
+            /** 렘 읽기 */
+
+            val  allPersons = realm.where(Person::class.java).findAll()
+            allPersons.forEach { person ->
+                println("Person: ${person.userId} : ${person.email} ${person.password}")
+            }
+
+            val lastPerson = allPersons.last()
+            println("Person: ${lastPerson?.userId} : ${lastPerson?.email} ${lastPerson?.password}")
+
+            val i = Intent(this, MainActivity::class.java)
+            //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(i)
+            finish()
+        }
+
+
+
+
+
+
+
+
+
     }
 
-
-
-
-
-
+    /** 패턴 오류 메세지 관련 */
     private inline fun retryWhenError(crossinline onError: (ex: Throwable) -> Unit): ObservableTransformer<String, String> = ObservableTransformer { observable ->
         observable.retryWhen { errors ->
             errors.flatMap {
@@ -168,73 +223,38 @@ class JoinActivity : AppCompatActivity() {
         }
     }
 
-//    private val checkIdPattern = ObservableTransformer<String, String> { observable ->
-//        observable.flatMap {
-//            Observable.just(it).map { it.trim() }
-//                    .filter { CustomPatterns.idPattern.matcher(it).matches() }
-//                    .singleOrError()
-//                    .onErrorResumeNext {
-//                        if (it is NoSuchElementException) {
-//                            //idCheckTextView.text = "아이디 패턴 오류"
-//                            Single.error(Exception("아이디 패턴 오류"))
-//                        } else {
-//                            Single.error(it)
-//                        }
-//                    }
-//                    .toObservable()
+//    private fun getNextKey(): Int {
+//        try {
+//            val number = realm.where(Person::class.java).max("id")
+//            return if (number != null) {
+//                number!!.toInt() + 1
+//            } else {
+//                0
+//            }
+//        } catch (e: ArrayIndexOutOfBoundsException) {
+//            return 0
 //        }
 //    }
 
 //    private fun saveData() {
-//        if (editTextName.text.isEmpty()) {
-//            Toasty.error(this, "이름을 입력하세요.", Toast.LENGTH_SHORT, true).show()
-//            return
-//        }
-//
-//        if (!Patterns.EMAIL_ADDRESS.matcher(editTextEmail.text).matches()) {
-//            Toasty.error(this, "이메일 형식이 맞지 않습니다.", Toast.LENGTH_SHORT, true).show()
-//            return
-//        }
-//
-//        if (editTextPassword.text.isEmpty()) {
-//            Toasty.error(this, "패스워드를 입력하세요.", Toast.LENGTH_SHORT, true).show()
-//            return
-//        }
-//
-//        if (editTextPasswordAgain.text.isEmpty()) {
-//            Toasty.error(this, "패스워드를 한번 더 입력하세요.", Toast.LENGTH_SHORT, true).show()
-//            return
-//        }
-//
-//        if (editTextPassword.text.toString() != editTextPasswordAgain.text.toString()) {
-//            Toasty.error(this, "패스워드가 서로 다릅니다.", Toast.LENGTH_SHORT, true).show()
-//            return
-//        }
 //
 //        val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
 //
 //        val editor = myPref.edit()
-//        editor.putString("name",editTextName.text.toString())
-//        editor.putString("email",editTextEmail.text.toString())
-//        editor.putString("password", editTextPassword.text.toString())
 //        editor.putBoolean("isEmpty", false)
 //        editor.apply()
 //
 //
-//        Toasty.success(this, "저장 성공", Toast.LENGTH_SHORT, true).show();
-//
-//        val i = Intent(this, MainActivity::class.java)
-//        //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-//        startActivity(i)
-//        finish()
 //
 //    }
 
 
+
     companion object {
+
 
         private val TAG = "Study001"
 
     }
 }
+
