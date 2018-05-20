@@ -3,81 +3,100 @@ package io.indexpath.study_001
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
+import com.jakewharton.rxbinding2.widget.RxTextView
+import es.dmoral.toasty.Toasty
+import io.reactivex.Observable
+import io.reactivex.functions.BiFunction
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.startActivity
 
 //아이디 5글자 이상
 //패스워드 8글자 이상, 특수문자, 대,소문자 포함
 class MainActivity : AppCompatActivity() {
 
+//    lateinit var realm:Realm
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val i = Intent(this, JoinActivity::class.java)
-        startActivity(i)
+        Realm.init(this)
+        //checkUserInfo()
 
-        checkUserInfo()
+        /** 버튼관련 옵저버 */
+        val observableId = RxTextView.textChanges(editTextId)
+                .map { t -> t.toString().isNotEmpty() }
 
-//        button.setOnClickListener {
+        val observablePw = RxTextView.textChanges(editTextPassword)
+                .map { t -> t.toString().isNotEmpty() }
+
+        val signInEnabled: Observable<Boolean> = Observable.combineLatest(
+                observableId, observablePw, BiFunction { i, p -> i && p }
+        )
+
+        signInEnabled.distinctUntilChanged()
+                .subscribe { enabled -> buttonLogin.isEnabled = enabled }
+        signInEnabled.distinctUntilChanged()
+                .map { b -> if (b) R.color.colorAccent else R.color.material_grey_600 }
+                .subscribe { color -> buttonLogin.backgroundTintList =
+                        ContextCompat.getColorStateList(this, color) }
+
+
+
+        buttonLogin.setOnClickListener {
 //            Login()
-//        }
+            Log.d(TAG,"로그인 클릭")
+            val config = RealmConfiguration.Builder().name("person.realm").build()
+            val realm = Realm.getInstance(config)
+            //realm.beginTransaction()
+
+            val user = realm.where(Person::class.java).equalTo("userId",editTextId.text.toString().trim()).findAll()
+
+            Log.d(TAG,"유저 카운트  : ${user.count()}")
+
+            if (user.isEmpty()) {
+
+                Log.d(TAG,"유저 없음")
+                Toasty.error(this, "유저 아이디 없음", Toast.LENGTH_SHORT, true).show()
+
+                editTextId.text = null
+                editTextPassword.text = null
+
+            } else {
+
+                val lastUser = user.last()
+                if (editTextPassword.text.toString() != lastUser?.password.toString()) {
+                    Toast.makeText(this,"패스워드 틀림",Toast.LENGTH_SHORT).show()
 
 
-//        Observable.just("aaaaaaaa.com")
-//                .compose(CustomPatterns.lengthGreaterThanSix)
-//                .compose(CustomPatterns.verifyEmailPattern)
-//                .subscribe(
-//                        { Log.d(TAG,"onNext: $it looks good!") },
-//                        { Log.d(TAG,"onError: ${it.message}") },
-//                        { Log.d(TAG,"onComplete") }
-//                )
+                } else {
 
-//        RxTextView.afterTextChangeEvents(editTextName)
-//                .skipInitialValue()
-//                .map { it.view().text.toString() }
-//                .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
-//                .compose(CustomPatterns.checkIdPattern)
-//                .subscribe(
-//                        { Log.d(TAG,"onNext: $it looks good!") },
-//                        { Log.d(TAG,"onError: ${it.message}") },
-//                        { Log.d(TAG,"onComplete") }
-//                )
+                    Toasty.success(this, "로그인 성공", Toast.LENGTH_SHORT, true).show()
+                    val i = Intent(this, ResultActivity::class.java)
+                    startActivity(i)
+                    finish()
+
+                }
+            }
+
+        }
+
+        buttonSignUp.setOnClickListener {
+            startActivity<JoinActivity>()
+        }
+
 
 
     }
 
 
 
-//    private val lengthGreaterThanSix = ObservableTransformer<String, String> { observable ->
-//        observable.map { it.trim() }
-//                .filter { it.length > 6 }
-//                .singleOrError()
-//                .onErrorResumeNext {
-//                    if (it is NoSuchElementException) {
-//                        Single.error(Exception("길이가 짦음"))
-//                    } else {
-//                        Single.error(it)
-//                    }
-//                }
-//                .toObservable()
-//    }
-
-//    private val verifyEmailPattern = ObservableTransformer<String, String> { observable ->
-//        observable.map { it.trim() }
-//                .filter { Patterns.EMAIL_ADDRESS.matcher(it).matches() }
-//
-//                .singleOrError()
-//                .onErrorResumeNext {
-//                    if (it is NoSuchElementException) {
-//                        Single.error(Exception("이메일패턴오류"))
-//                    } else {
-//                        Single.error(it)
-//                    }
-//                }
-//                .toObservable()
-//    }
 
 //    private fun setSupportActionBar(toolbar: Toolbar) {
 //        val toolbar : Toolbar = findViewById(R.id.toolbar)
@@ -87,8 +106,8 @@ class MainActivity : AppCompatActivity() {
         val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
         val isEmpty = myPref.getBoolean("isEmpty", true)
 
-        if (isEmpty) {
-            Log.d(TAG,"JoinActivity")
+        if (!isEmpty) {
+            Log.d(TAG,"가입정보 없음")
 
             val i = Intent(this, JoinActivity::class.java)
             //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -97,12 +116,24 @@ class MainActivity : AppCompatActivity() {
             finish()
 
         } else {
+            Log.d(TAG,"가입정보 있음")
 
-            val name = myPref.getString("name", "")
-            val email = myPref.getString("email", "")
-            val password = myPref.getString("password", "")
+            /** 렘 읽기 */
+            val config = RealmConfiguration.Builder().name("person.realm").build()
+            val realm = Realm.getInstance(config)
+            realm.beginTransaction()
+            val  allPersons = realm.where(Person::class.java).findAll()
+            allPersons.forEach { person ->
+                println("Person: ${person.userId} : ${person.email} ${person.password}")
+            }
 
-            userNick.text = "User Name : ${name}"
+            val lastPerson = allPersons.last()
+
+            val name = lastPerson?.userId
+            val email = lastPerson?.email
+            val password = lastPerson?.password
+
+            userNick.text = "User ID : ${name}"
             userEmail.text = "User Email : ${email}"
             userPassword.text = "User Password : ${password}"
 
@@ -113,29 +144,31 @@ class MainActivity : AppCompatActivity() {
 
 
 //    private fun Login() {
-//        val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
-//        val name = myPref.getString("name", "")
-//        val password = myPref.getString("password", "")
+//        val config = RealmConfiguration.Builder().name("person.realm").build()
+//        val realm = Realm.getInstance(config)
+//        realm.beginTransaction()
 //
-//        val id = editTextName.text.toString()
-//        val pw = editTextPassword.text.toString()
+//        val user = realm.where(Person::class.java).equalTo("userId",editTextId.toString()).findAll()
+//        val lastUser = user.last()
 //
-//        if (id == name && pw == password) {
-//            Toasty.success(this, "로그인 성공", Toast.LENGTH_SHORT, true).show()
-//            val i = Intent(this, ResultActivity::class.java)
-//            startActivity(i)
-//            finish()
+//        if (user.isEmpty()) {
+//            Log.d(TAG,"유저 없음")
+//            return
 //
 //        } else {
 //
-//            if (id == "" || pw == "") {
-//                Toasty.error(this, "아이디 / 패스워드를 입력하세요.", Toast.LENGTH_SHORT, true).show();
-//
-//            } else if (id != name || pw != password) {
-//                Toasty.error(this, "로그인 실패", Toast.LENGTH_SHORT, true).show()
+//            if (editTextPassword.toString() != lastUser?.password.toString()) {
+//                Toast.makeText(this,"패스워드 틀림",Toast.LENGTH_SHORT).show()
 //                return
-//            }
 //
+//            } else {
+//
+//                Toasty.success(this, "로그인 성공", Toast.LENGTH_SHORT, true).show()
+//                val i = Intent(this, ResultActivity::class.java)
+//                startActivity(i)
+//                finish()
+//
+//            }
 //        }
 //    }
 
@@ -147,5 +180,8 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private val TAG = "Study001"
+
     }
 }
+
+

@@ -1,5 +1,6 @@
 package io.indexpath.study_001
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -100,6 +101,7 @@ class JoinActivity : AppCompatActivity() {
                 })
                 .subscribe {
                     CustomPatterns.passwordTemp = it
+                    editTextPasswordAgain.text = null
                     Log.d(TAG,"onNext1: $it ")
                 }
 
@@ -158,15 +160,15 @@ class JoinActivity : AppCompatActivity() {
 //        observableId, observableEmail, observablePw1, observablePw2, BiFunction { i, e, p1, p2 -> i && e && p1 && p2 }
 
         signInEnabled.distinctUntilChanged()
-                .subscribe { enabled -> buttonSave.isEnabled = enabled }
+                .subscribe { enabled -> buttonLogin.isEnabled = enabled }
         signInEnabled.distinctUntilChanged()
                 .map { b -> if (b) R.color.colorAccent else R.color.material_grey_600 }
-                .subscribe { color -> buttonSave.backgroundTintList =
+                .subscribe { color -> buttonLogin.backgroundTintList =
                         ContextCompat.getColorStateList(this, color) }
 
 
 
-        buttonSave.setOnClickListener {
+        buttonLogin.setOnClickListener {
             //saveData()
             /** 렘 저장 */
 //            val config = RealmConfiguration.Builder().name("person.realm").build()
@@ -196,11 +198,22 @@ class JoinActivity : AppCompatActivity() {
             val lastPerson = allPersons.last()
             println("Person: ${lastPerson?.userId} : ${lastPerson?.email} ${lastPerson?.password}")
 
+
+            /** 가입정보 있음 */
+            val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
+
+            val editor = myPref.edit()
+            editor.putBoolean("isEmpty", true)
+            editor.apply()
+
+
             val i = Intent(this, MainActivity::class.java)
             //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(i)
             finish()
+
+
         }
 
 

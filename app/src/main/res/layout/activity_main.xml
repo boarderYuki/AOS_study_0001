@@ -31,7 +31,7 @@
     </android.support.v7.widget.Toolbar>
 
     <EditText
-        android:id="@+id/editTextName"
+        android:id="@+id/editTextId"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="32dp"
@@ -62,14 +62,14 @@
         android:hint="@string/password"
         android:inputType="textPassword"
         android:textColor="#404040"
-        app:layout_constraintEnd_toEndOf="@+id/editTextName"
+        app:layout_constraintEnd_toEndOf="@+id/editTextId"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/editTextName"
-        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
+        app:layout_constraintStart_toStartOf="@+id/editTextId"
+        app:layout_constraintTop_toBottomOf="@+id/editTextId" />
 
 
     <Button
-        android:id="@+id/buttonSave"
+        android:id="@+id/buttonLogin"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -88,14 +88,11 @@
         android:layout_width="0dp"
         android:layout_height="120dp"
         android:layout_marginBottom="32dp"
-        android:layout_marginTop="8dp"
         android:background="@drawable/custom_edit_text_bg"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/buttonSave"
+        app:layout_constraintEnd_toEndOf="@+id/buttonLogin"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/buttonSave"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSave"
-        app:layout_constraintVertical_bias="0.896" />
+        app:layout_constraintStart_toStartOf="@+id/buttonLogin" />
 
     <TextView
         android:id="@+id/user_info"
@@ -142,6 +139,29 @@
         app:layout_constraintEnd_toEndOf="@+id/userEmail"
         app:layout_constraintStart_toStartOf="@+id/userEmail"
         app:layout_constraintTop_toBottomOf="@+id/userEmail" />
+
+    <CheckBox
+        android:id="@+id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="자동 로그인"
+        app:layout_constraintEnd_toEndOf="@+id/buttonLogin"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/buttonLogin"
+        app:layout_constraintTop_toBottomOf="@+id/buttonLogin" />
+
+    <Button
+        android:id="@+id/buttonSignUp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
+        android:text="회원 가입 하기"
+        android:textColor="@color/statusBar"
+        app:layout_constraintBottom_toTopOf="@+id/view"
+        app:layout_constraintEnd_toEndOf="@+id/view"
+        app:layout_constraintStart_toStartOf="@+id/view" />
 
 
 </android.support.constraint.ConstraintLayout>
