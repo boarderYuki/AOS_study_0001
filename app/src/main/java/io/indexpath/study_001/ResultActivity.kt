@@ -26,13 +26,6 @@ class ResultActivity : AppCompatActivity() {
         buttonLogOut.setOnClickListener {
 
 
-
-
-            Toasty.success(this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT, true).show();
-
-//            val i = Intent(applicationContext, MainActivity::class.java)
-//            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-//            startActivity(i)
             val editor = myPref.edit()
             editor.putBoolean("autoLogin", false)
             editor.apply()
@@ -40,6 +33,8 @@ class ResultActivity : AppCompatActivity() {
             startActivity<MainActivity>()
 
             finish()
+
+            Toasty.success(this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT, true).show()
         }
 
     }

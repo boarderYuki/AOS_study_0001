@@ -57,6 +57,21 @@ class MainActivity : AppCompatActivity() {
 
         checkAutoLogin.isChecked = autoLogin
 
+        /** 자동 로그인으로 로그인 하기*/
+        if (autoLogin) {
+
+            val getIdFromMyPref:String = myPref.getString("id", "")
+            val getPasswordFromMyPref = myPref.getString("password", "")
+            val user = realm.where(Person::class.java).equalTo("userId",getIdFromMyPref).findAll()
+
+            if (!user.isEmpty() && user.last()?.password == getPasswordFromMyPref){
+                startActivity<ResultActivity>()
+
+            }
+
+        }
+
+
 
         buttonLogOut.setOnClickListener {
             //Login()
@@ -85,7 +100,7 @@ class MainActivity : AppCompatActivity() {
 
                 } else {
 
-                    /** 자동 로그인 확인 */
+                    /** 자동 로그인 정보 입력 */
 //                    val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
                     val editor = myPref.edit()
 
@@ -203,5 +218,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 }
+
+
 
 
