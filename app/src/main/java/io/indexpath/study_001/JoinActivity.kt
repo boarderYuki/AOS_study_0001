@@ -31,12 +31,24 @@ class JoinActivity : AppCompatActivity() {
         val config = RealmConfiguration.Builder().name("person.realm").build()
         val realm = Realm.getInstance(config)
         Log.d(TAG, "path: " + realm.path)
-        var passwordTemp = ""
+
+
+
 
 
         /** 버튼관련 옵저버 */
         val observableId = RxTextView.textChanges(editTextId)
                 .map { t -> CustomPatterns.idPattern.matcher(t).matches() }
+
+        val observableDoubleId = RxTextView.textChanges(editTextId)
+                .map { t -> checkDoubleIdForButton(t) }
+//
+//        //val observableDuplecateIdError =
+//                RxTextView.textChanges(editTextId)
+//                .map { t -> checkDoubleCount(t) }
+//                .subscribe {
+//                    checkId.text = "중복 아이디입니다."
+//                }
 
         val observableEmail = RxTextView.textChanges(editTextEmail)
                 .map { t -> Patterns.EMAIL_ADDRESS.matcher(t).matches() }
@@ -46,26 +58,23 @@ class JoinActivity : AppCompatActivity() {
 
         val observablePw2 = RxTextView.textChanges(editTextPasswordAgain)
                 .map { t -> CustomPatterns.passwordTemp.equals(t.toString()) }
-                //.map { t -> editTextPassword.toString().equals(t.toString()) }
 
-        //val observablePwCompare = RxTextView.textChanges(editTextPassword)
-                //.map { t -> CustomPatterns.passwordTemp.equals(t.toString()) }
-
-
-
+        //Log.d(TAG,"윗부분 : ${checkDupleId.equalTo("userId", "yyyyhhhhy").findAll().isNotEmpty()}")
+        Log.d(TAG,"카운트 : ${realm.where(Person::class.java).equalTo("userId", "yyyyy").count()}")
 
         /** 아이디 체크 */
         RxTextView.afterTextChangeEvents(editTextId)
                 .skipInitialValue()
                 .map {
-                    checkId.text = ""
+                    checkDoubleIdText.text = ""
                     it.view().text.toString()
                 }
                 // 1초마다 새롭게 시도
                 .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
                 .compose(CustomPatterns.checkIdPattern)
+                .compose(CustomPatterns.doubleId)
                 .compose(retryWhenError {
-                    checkId.text = it.message
+                    checkDoubleIdText.text = it.message
                 })
                 .subscribe()
 
@@ -76,12 +85,11 @@ class JoinActivity : AppCompatActivity() {
                     checkId.text = ""
                     it.view().text.toString()
                 }
-                //.debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+                .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
                 .compose(CustomPatterns.checkEmailPattern)
                 .compose(retryWhenError {
                     checkId.text = it.message
                 })
-                //.subscribe( passwordTemp )
                 .subscribe()
 
         /** 첫번째 패스워드 체크 */
@@ -91,37 +99,16 @@ class JoinActivity : AppCompatActivity() {
                     checkId.text = ""
                     it.view().text.toString()
                 }
-                //.debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+                .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
                 .compose(CustomPatterns.checkPwPattern)
-                //.compose(CustomPatterns.comparePw)
-                //.compose(CustomPatterns.checkPwPatternRepeat)
                 .compose(retryWhenError {
                     checkId.text = it.message
                 })
                 .subscribe {
                     CustomPatterns.passwordTemp = it
                     editTextPasswordAgain.text = null
-                    Log.d(TAG,"onNext1: $it ")
                 }
 
-//        /** 첫번째 패스워드를 수정했을 경우 */
-//        RxTextView.afterTextChangeEvents(editTextPassword)
-//                .skipInitialValue()
-//                .map {
-//                    checkId.text = ""
-//                    it.view().text.toString()
-//                }
-//                //.debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
-//                //.compose(CustomPatterns.checkPwPattern)
-//                .compose(CustomPatterns.comparePw)
-//                //.compose(CustomPatterns.checkPwPatternRepeat)
-//                .compose(retryWhenError {
-//                    checkId.text = it.message
-//                })
-//                .subscribe {
-//                    //CustomPatterns.passwordTemp = it
-//                    Log.d(TAG,"onNext2: $it ")
-//                }
 
         /** 동일한 패스워드인지 체크 */
         RxTextView.afterTextChangeEvents(editTextPasswordAgain)
@@ -130,7 +117,7 @@ class JoinActivity : AppCompatActivity() {
                     checkId.text = ""
                     it.view().text.toString()
                 }
-                //.debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+                .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
                 .compose(CustomPatterns.comparePw)
                 .compose(retryWhenError {
                     checkId.text = it.message
@@ -139,7 +126,6 @@ class JoinActivity : AppCompatActivity() {
 
 
         /** Sign In observer */
-
         val signInEnabled1: Observable<Boolean> = Observable.combineLatest(
                 observableId, observableEmail, BiFunction { i, e -> i && e }
         )
@@ -148,15 +134,13 @@ class JoinActivity : AppCompatActivity() {
                 observablePw1, observablePw2, BiFunction { p1, p2 -> p1 && p2 }
         )
 
-        val signInEnabled: Observable<Boolean> = Observable.combineLatest(
+        val signInEnabled3: Observable<Boolean> = Observable.combineLatest(
                 signInEnabled1, signInEnabled2, BiFunction { s1, s2 -> s1 && s2 }
         )
 
-//        val signInEnabled: Observable<Boolean> = Observable.combineLatest(
-//                signInEnabledWithChangePassword, observablePwCompare, BiFunction { s1, s2 -> s1 && s2 }
-//        )
-
-//        observableId, observableEmail, observablePw1, observablePw2, BiFunction { i, e, p1, p2 -> i && e && p1 && p2 }
+        val signInEnabled: Observable<Boolean> = Observable.combineLatest(
+                signInEnabled3, observableDoubleId, BiFunction { s1, s2 -> s1 && s2 }
+        )
 
         signInEnabled.distinctUntilChanged()
                 .subscribe { enabled -> buttonLogOut.isEnabled = enabled }
@@ -164,8 +148,6 @@ class JoinActivity : AppCompatActivity() {
                 .map { b -> if (b) R.color.colorAccent else R.color.material_grey_600 }
                 .subscribe { color -> buttonLogOut.backgroundTintList =
                         ContextCompat.getColorStateList(this, color) }
-
-
 
         buttonLogOut.setOnClickListener {
             //saveData()
@@ -183,46 +165,23 @@ class JoinActivity : AppCompatActivity() {
 
             Toasty.success(this, "저장 성공", Toast.LENGTH_SHORT, true).show();
 
-
-            /** 렘 읽기 */
-            val  allPersons = realm.where(Person::class.java).findAll()
-            allPersons.forEach { person ->
-                println("Person: ${person.userId} : ${person.email} ${person.password}")
-            }
-
-            val lastPerson = allPersons.last()
-            println("Person: ${lastPerson?.userId} : ${lastPerson?.email} ${lastPerson?.password}")
-
-
-//            /** 가입정보 있음 */
-//            val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
-//
-//            val editor = myPref.edit()
-//            editor.putBoolean("isEmpty", true)
-//            editor.putString("name", editTextId.text.toString())
-//            editor.putString("email", editTextEmail.text.toString())
-//            editor.putString("password", editTextPassword.text.toString())
-//            editor.apply()
-
-
             val i = Intent(this, MainActivity::class.java)
             //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(i)
             finish()
-
-
         }
 
-
-
-
-
-
-
-
-
     }
+
+    private fun checkDoubleIdForButton(t: CharSequence?) : Boolean {
+        val config = RealmConfiguration.Builder().name("person.realm").build()
+        val realm = Realm.getInstance(config)
+        var count = realm.where(Person::class.java).equalTo("userId", t.toString()).findAll().count()
+
+        if (count == 0) { return true } else { return false }
+    }
+
 
     /** 패턴 오류 메세지 관련 */
     private inline fun retryWhenError(crossinline onError: (ex: Throwable) -> Unit): ObservableTransformer<String, String> = ObservableTransformer { observable ->
@@ -234,38 +193,8 @@ class JoinActivity : AppCompatActivity() {
         }
     }
 
-//    private fun getNextKey(): Int {
-//        try {
-//            val number = realm.where(Person::class.java).max("id")
-//            return if (number != null) {
-//                number!!.toInt() + 1
-//            } else {
-//                0
-//            }
-//        } catch (e: ArrayIndexOutOfBoundsException) {
-//            return 0
-//        }
-//    }
-
-//    private fun saveData() {
-//
-//        val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
-//
-//        val editor = myPref.edit()
-//        editor.putBoolean("isEmpty", false)
-//        editor.apply()
-//
-//
-//
-//    }
-
-
-
     companion object {
-
-
         private val TAG = "Study001"
 
     }
 }
-

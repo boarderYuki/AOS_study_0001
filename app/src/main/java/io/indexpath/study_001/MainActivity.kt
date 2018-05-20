@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
                 .subscribe { color -> buttonLogOut.backgroundTintList =
                         ContextCompat.getColorStateList(this, color) }
 
+
         /** 자동 로그인 셋팅 - 이전 로그인시에 자동로그인 체크 여부를 확인해서 체크박스 설정 */
         val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
         val autoLogin = myPref.getBoolean("autoLogin", false)
@@ -66,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
             if (!user.isEmpty() && user.last()?.password == getPasswordFromMyPref){
                 startActivity<ResultActivity>()
-
+                finish()
             }
 
         }

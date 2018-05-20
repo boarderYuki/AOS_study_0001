@@ -4,6 +4,8 @@ import android.util.Patterns
 import io.reactivex.Observable
 import io.reactivex.ObservableTransformer
 import io.reactivex.Single
+import io.realm.Realm
+import io.realm.RealmConfiguration
 import java.util.regex.Pattern
 
 class CustomPatterns {
@@ -111,6 +113,25 @@ class CustomPatterns {
 
 
 
+        val doubleId = ObservableTransformer<String, String> { observable ->
+            observable.flatMap {
+                Observable.just(it).map { it.trim() }
+                        .filter { it -> checkDoubleId(it) }
+                        .singleOrError()
+                        .onErrorResumeNext{
+                            if (it is NoSuchElementException) {
+                                //idCheckTextView.text = "아이디 패턴 오류"
+                                Single.error(Exception("중복 아이디입니다."))
+                            } else {
+                                Single.error(it)
+                            }
+                        }
+                        .toObservable()
+            }
+        }
+
+
+
 
 
 //        fun retryWhenError( onError: (ex: Throwable) -> Unit): ObservableTransformer<String, String> = ObservableTransformer { observable ->
@@ -121,6 +142,32 @@ class CustomPatterns {
 //                }
 //            }
 //        }
+
+
+
+
+
+        private fun checkDoubleId(t: CharSequence?) : Boolean {
+            val config = RealmConfiguration.Builder().name("person.realm").build()
+            val realm = Realm.getInstance(config)
+            var count = realm.where(Person::class.java).equalTo("userId", t.toString()).findAll().count()
+
+            if (count == 0) { return true } else { return false }
+        }
+
+        private fun checkDoubleCount(t: CharSequence?) : Boolean {
+            val config = RealmConfiguration.Builder().name("person.realm").build()
+            val realm = Realm.getInstance(config)
+            var count = realm.where(Person::class.java).equalTo("userId", t.toString()).findAll().count()
+
+            if (count == 0) { return false } else { return true }
+        }
+
+
+
+
+
+
 
     }
 

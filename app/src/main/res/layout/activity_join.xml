@@ -21,12 +21,13 @@
             android:layout_gravity="center">
 
             <TextView
+                android:id="@+id/signUpTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Sign Up"
+                android:text="@string/sign_up"
                 android:textColor="#fff"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
         </FrameLayout>
 
     </android.support.v7.widget.Toolbar>
@@ -61,7 +62,7 @@
         app:layout_constraintEnd_toEndOf="@+id/checkId"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/checkId"
-        app:layout_constraintTop_toBottomOf="@+id/checkId" />
+        app:layout_constraintTop_toBottomOf="@+id/checkDoubleIdText" />
 
 
     <EditText
@@ -185,6 +186,18 @@
         app:layout_constraintEnd_toEndOf="@+id/userEmail"
         app:layout_constraintStart_toStartOf="@+id/userEmail"
         app:layout_constraintTop_toBottomOf="@+id/userEmail" />
+
+    <TextView
+        android:id="@+id/checkDoubleIdText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_red_light"
+        app:layout_constraintEnd_toEndOf="@+id/checkId"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/checkId"
+        app:layout_constraintTop_toBottomOf="@+id/checkId" />
 
 
 </android.support.constraint.ConstraintLayout>
