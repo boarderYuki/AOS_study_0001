@@ -13,4 +13,9 @@
     <string name="user_info">User Info.</string>
     <string name="user_nickname">user nickname</string>
     <string name="deleteData">Delete Profile</string>
+    <string name="logOut">Log Out</string>
+    <string name="auccessLogin">로그인 성공</string>
+    <string name="textview">loginPassword</string>
+    <string name="loginUser">TextView</string>
+    <string name="successTitle">Success</string>
 </resources>

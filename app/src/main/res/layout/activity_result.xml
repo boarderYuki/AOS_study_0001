@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Success"
+                android:text="@string/successTitle"
                 android:textColor="#fff"
                 android:textSize="20sp"/>
         </FrameLayout>
@@ -33,31 +33,72 @@
     <TextView
         android:id="@+id/loginResult"
         android:layout_width="0dp"
-        android:layout_height="@android:dimen/app_icon_size"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="119dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="33dp"
         android:gravity="center_vertical"
-        android:text="로그인 성공"
+        android:text="@string/auccessLogin"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/buttonLogin"
+        android:textSize="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/loginUser"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <Button
-        android:id="@+id/buttonLogin"
+        android:id="@+id/buttonLogOut"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="57dp"
         android:background="@color/statusBar"
         android:elevation="0dp"
-        android:text="@string/deleteData"
+        android:text="@string/logOut"
         android:textColor="#fff"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/loginResult"
-        app:layout_constraintStart_toStartOf="@+id/loginResult" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/isAutoLogin" />
+
+    <TextView
+        android:id="@+id/loginPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/textview"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/isAutoLogin"
+        app:layout_constraintEnd_toEndOf="@+id/loginUser"
+        app:layout_constraintStart_toStartOf="@+id/loginUser"
+        app:layout_constraintTop_toBottomOf="@+id/loginUser" />
+
+    <TextView
+        android:id="@+id/loginUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/loginUser"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/loginPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginResult" />
+
+    <TextView
+        android:id="@+id/isAutoLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="TextView"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLogOut"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginPassword" />
 
 </android.support.constraint.ConstraintLayout>

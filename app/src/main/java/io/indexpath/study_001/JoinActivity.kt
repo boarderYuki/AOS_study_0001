@@ -1,6 +1,5 @@
 package io.indexpath.study_001
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
@@ -160,21 +159,18 @@ class JoinActivity : AppCompatActivity() {
 //        observableId, observableEmail, observablePw1, observablePw2, BiFunction { i, e, p1, p2 -> i && e && p1 && p2 }
 
         signInEnabled.distinctUntilChanged()
-                .subscribe { enabled -> buttonLogin.isEnabled = enabled }
+                .subscribe { enabled -> buttonLogOut.isEnabled = enabled }
         signInEnabled.distinctUntilChanged()
                 .map { b -> if (b) R.color.colorAccent else R.color.material_grey_600 }
-                .subscribe { color -> buttonLogin.backgroundTintList =
+                .subscribe { color -> buttonLogOut.backgroundTintList =
                         ContextCompat.getColorStateList(this, color) }
 
 
 
-        buttonLogin.setOnClickListener {
+        buttonLogOut.setOnClickListener {
             //saveData()
-            /** 렘 저장 */
-//            val config = RealmConfiguration.Builder().name("person.realm").build()
-//            val realm = Realm.getInstance(config)
-//            Log.d("TAG", "path: " + realm.path)
 
+            /** 렘 저장 */
             realm.beginTransaction()
             val number = realm.where(Person::class.java).count() + 1
 
@@ -189,7 +185,6 @@ class JoinActivity : AppCompatActivity() {
 
 
             /** 렘 읽기 */
-
             val  allPersons = realm.where(Person::class.java).findAll()
             allPersons.forEach { person ->
                 println("Person: ${person.userId} : ${person.email} ${person.password}")
@@ -199,12 +194,15 @@ class JoinActivity : AppCompatActivity() {
             println("Person: ${lastPerson?.userId} : ${lastPerson?.email} ${lastPerson?.password}")
 
 
-            /** 가입정보 있음 */
-            val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
-
-            val editor = myPref.edit()
-            editor.putBoolean("isEmpty", true)
-            editor.apply()
+//            /** 가입정보 있음 */
+//            val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
+//
+//            val editor = myPref.edit()
+//            editor.putBoolean("isEmpty", true)
+//            editor.putString("name", editTextId.text.toString())
+//            editor.putString("email", editTextEmail.text.toString())
+//            editor.putString("password", editTextPassword.text.toString())
+//            editor.apply()
 
 
             val i = Intent(this, MainActivity::class.java)

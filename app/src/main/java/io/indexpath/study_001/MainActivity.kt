@@ -20,14 +20,18 @@ import org.jetbrains.anko.startActivity
 //패스워드 8글자 이상, 특수문자, 대,소문자 포함
 class MainActivity : AppCompatActivity() {
 
-//    lateinit var realm:Realm
+    lateinit var realm:Realm
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         Realm.init(this)
-        //checkUserInfo()
+        val config = RealmConfiguration.Builder().name("person.realm").build()
+        realm = Realm.getInstance(config)
+        getLastMember()
 
         /** 버튼관련 옵저버 */
         val observableId = RxTextView.textChanges(editTextId)
@@ -41,19 +45,24 @@ class MainActivity : AppCompatActivity() {
         )
 
         signInEnabled.distinctUntilChanged()
-                .subscribe { enabled -> buttonLogin.isEnabled = enabled }
+                .subscribe { enabled -> buttonLogOut.isEnabled = enabled }
         signInEnabled.distinctUntilChanged()
                 .map { b -> if (b) R.color.colorAccent else R.color.material_grey_600 }
-                .subscribe { color -> buttonLogin.backgroundTintList =
+                .subscribe { color -> buttonLogOut.backgroundTintList =
                         ContextCompat.getColorStateList(this, color) }
 
+        /** 자동 로그인 셋팅 - 이전 로그인시에 자동로그인 체크 여부를 확인해서 체크박스 설정 */
+        val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
+        val autoLogin = myPref.getBoolean("autoLogin", false)
+
+        checkAutoLogin.isChecked = autoLogin
 
 
-        buttonLogin.setOnClickListener {
-//            Login()
+        buttonLogOut.setOnClickListener {
+            //Login()
             Log.d(TAG,"로그인 클릭")
-            val config = RealmConfiguration.Builder().name("person.realm").build()
-            val realm = Realm.getInstance(config)
+            //val config = RealmConfiguration.Builder().name("person.realm").build()
+            //realm = Realm.getInstance(config)
             //realm.beginTransaction()
 
             val user = realm.where(Person::class.java).equalTo("userId",editTextId.text.toString().trim()).findAll()
@@ -74,8 +83,22 @@ class MainActivity : AppCompatActivity() {
                 if (editTextPassword.text.toString() != lastUser?.password.toString()) {
                     Toast.makeText(this,"패스워드 틀림",Toast.LENGTH_SHORT).show()
 
-
                 } else {
+
+                    /** 자동 로그인 확인 */
+//                    val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
+                    val editor = myPref.edit()
+
+                    if (checkAutoLogin.isChecked) {
+                        editor.putBoolean("autoLogin", true)
+                        editor.putString("id", editTextId.text.toString())
+                        editor.putString("password", editTextPassword.text.toString())
+
+                    } else {
+                        editor.putBoolean("autoLogin", false)
+                    }
+
+                    editor.apply()
 
                     Toasty.success(this, "로그인 성공", Toast.LENGTH_SHORT, true).show()
                     val i = Intent(this, ResultActivity::class.java)
@@ -87,11 +110,10 @@ class MainActivity : AppCompatActivity() {
 
         }
 
+        /** 회원 가입 */
         buttonSignUp.setOnClickListener {
             startActivity<JoinActivity>()
         }
-
-
 
     }
 
@@ -102,27 +124,58 @@ class MainActivity : AppCompatActivity() {
 //        val toolbar : Toolbar = findViewById(R.id.toolbar)
 //    }
 
-    private fun checkUserInfo() {
-        val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
-        val isEmpty = myPref.getBoolean("isEmpty", true)
+//    private fun checkUserInfo() {
+//        val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
+//        val isEmpty = myPref.getBoolean("isEmpty", true)
+//
+//        if (!isEmpty) {
+//            Log.d(TAG,"가입정보 없음")
+//
+//            val i = Intent(this, JoinActivity::class.java)
+//            //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            //i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+//            startActivity(i)
+//            finish()
+//
+//        } else {
+//            Log.d(TAG,"가입정보 있음")
+//
+//            /** 렘 읽기 */
+//            val config = RealmConfiguration.Builder().name("person.realm").build()
+//            val realm = Realm.getInstance(config)
+//            realm.beginTransaction()
+//            val  allPersons = realm.where(Person::class.java).findAll()
+//            allPersons.forEach { person ->
+//                println("Person: ${person.userId} : ${person.email} ${person.password}")
+//            }
+//
+//            val lastPerson = allPersons.last()
+//
+//            val name = lastPerson?.userId
+//            val email = lastPerson?.email
+//            val password = lastPerson?.password
+//
+//            userNick.text = "User ID : ${name}"
+//            userEmail.text = "User Email : ${email}"
+//            userPassword.text = "User Password : ${password}"
+//
+//            return
+//        }
+//    }
 
-        if (!isEmpty) {
-            Log.d(TAG,"가입정보 없음")
 
-            val i = Intent(this, JoinActivity::class.java)
-            //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            //i.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            startActivity(i)
-            finish()
+    /** 마지막 가입 회원 정보 */
+    private fun getLastMember() {
+//        val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
+//        val isEmpty = myPref.getBoolean("isEmpty", true)
 
-        } else {
-            Log.d(TAG,"가입정보 있음")
+        /** 렘 읽기 */
+//        val config = RealmConfiguration.Builder().name("person.realm").build()
 
-            /** 렘 읽기 */
-            val config = RealmConfiguration.Builder().name("person.realm").build()
-            val realm = Realm.getInstance(config)
-            realm.beginTransaction()
-            val  allPersons = realm.where(Person::class.java).findAll()
+//        realm.beginTransaction()
+        val  allPersons = realm.where(Person::class.java).findAll()
+
+        if (!allPersons.isEmpty()) {
             allPersons.forEach { person ->
                 println("Person: ${person.userId} : ${person.email} ${person.password}")
             }
@@ -136,42 +189,9 @@ class MainActivity : AppCompatActivity() {
             userNick.text = "User ID : ${name}"
             userEmail.text = "User Email : ${email}"
             userPassword.text = "User Password : ${password}"
-
-            return
         }
+
     }
-
-
-
-//    private fun Login() {
-//        val config = RealmConfiguration.Builder().name("person.realm").build()
-//        val realm = Realm.getInstance(config)
-//        realm.beginTransaction()
-//
-//        val user = realm.where(Person::class.java).equalTo("userId",editTextId.toString()).findAll()
-//        val lastUser = user.last()
-//
-//        if (user.isEmpty()) {
-//            Log.d(TAG,"유저 없음")
-//            return
-//
-//        } else {
-//
-//            if (editTextPassword.toString() != lastUser?.password.toString()) {
-//                Toast.makeText(this,"패스워드 틀림",Toast.LENGTH_SHORT).show()
-//                return
-//
-//            } else {
-//
-//                Toasty.success(this, "로그인 성공", Toast.LENGTH_SHORT, true).show()
-//                val i = Intent(this, ResultActivity::class.java)
-//                startActivity(i)
-//                finish()
-//
-//            }
-//        }
-//    }
-
 
 
 

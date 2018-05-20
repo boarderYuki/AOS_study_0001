@@ -114,7 +114,7 @@
 
 
     <Button
-        android:id="@+id/buttonLogin"
+        android:id="@+id/buttonLogOut"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -134,10 +134,10 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/custom_edit_text_bg"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/buttonLogin"
+        app:layout_constraintEnd_toEndOf="@+id/buttonLogOut"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/buttonLogin"
-        app:layout_constraintTop_toBottomOf="@+id/buttonLogin"
+        app:layout_constraintStart_toStartOf="@+id/buttonLogOut"
+        app:layout_constraintTop_toBottomOf="@+id/buttonLogOut"
         app:layout_constraintVertical_bias="0.896" />
 
     <TextView
