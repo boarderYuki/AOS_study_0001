@@ -1,6 +1,5 @@
 package io.indexpath.study_001
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -16,9 +15,8 @@ import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import kotlinx.android.synthetic.main.activity_join.*
+import org.jetbrains.anko.startActivity
 import java.util.concurrent.TimeUnit
-
-
 
 
 class JoinActivity : AppCompatActivity() {
@@ -33,22 +31,13 @@ class JoinActivity : AppCompatActivity() {
         Log.d(TAG, "path: " + realm.path)
 
 
-
-
-
-        /** 버튼관련 옵저버 */
+        /** 가입 버튼 관련 옵저버
+         * 오류메세지와는 관계없이 단순히 패턴검사만 하여 가입 버튼 활성화에 사용*/
         val observableId = RxTextView.textChanges(editTextId)
                 .map { t -> CustomPatterns.idPattern.matcher(t).matches() }
 
         val observableDoubleId = RxTextView.textChanges(editTextId)
                 .map { t -> checkDoubleIdForButton(t) }
-//
-//        //val observableDuplecateIdError =
-//                RxTextView.textChanges(editTextId)
-//                .map { t -> checkDoubleCount(t) }
-//                .subscribe {
-//                    checkId.text = "중복 아이디입니다."
-//                }
 
         val observableEmail = RxTextView.textChanges(editTextEmail)
                 .map { t -> Patterns.EMAIL_ADDRESS.matcher(t).matches() }
@@ -59,9 +48,7 @@ class JoinActivity : AppCompatActivity() {
         val observablePw2 = RxTextView.textChanges(editTextPasswordAgain)
                 .map { t -> CustomPatterns.passwordTemp.equals(t.toString()) }
 
-        //Log.d(TAG,"윗부분 : ${checkDupleId.equalTo("userId", "yyyyhhhhy").findAll().isNotEmpty()}")
-        Log.d(TAG,"카운트 : ${realm.where(Person::class.java).equalTo("userId", "yyyyy").count()}")
-
+        /** 패턴 오류 메세지 보여줌 오류내용은 CustomPatterns 에서 가져옴 */
         /** 아이디 체크 */
         RxTextView.afterTextChangeEvents(editTextId)
                 .skipInitialValue()
@@ -72,7 +59,7 @@ class JoinActivity : AppCompatActivity() {
                 // 1초마다 새롭게 시도
                 .debounce(1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
                 .compose(CustomPatterns.checkIdPattern)
-                .compose(CustomPatterns.doubleId)
+                .compose(CustomPatterns.doubleId) /** <--- 중복아이디 검사 */
                 .compose(retryWhenError {
                     checkDoubleIdText.text = it.message
                 })
@@ -125,7 +112,8 @@ class JoinActivity : AppCompatActivity() {
                 .subscribe()
 
 
-        /** Sign In observer */
+        /** 버튼 활성화 이상형 월드컵
+         * 모든 항목이 트루를 받아야만 버튼이 활성화 됨 */
         val signInEnabled1: Observable<Boolean> = Observable.combineLatest(
                 observableId, observableEmail, BiFunction { i, e -> i && e }
         )
@@ -142,6 +130,7 @@ class JoinActivity : AppCompatActivity() {
                 signInEnabled3, observableDoubleId, BiFunction { s1, s2 -> s1 && s2 }
         )
 
+        // 버튼 활성하면서 색상도 변경
         signInEnabled.distinctUntilChanged()
                 .subscribe { enabled -> buttonLogOut.isEnabled = enabled }
         signInEnabled.distinctUntilChanged()
@@ -150,9 +139,8 @@ class JoinActivity : AppCompatActivity() {
                         ContextCompat.getColorStateList(this, color) }
 
         buttonLogOut.setOnClickListener {
-            //saveData()
 
-            /** 렘 저장 */
+            /** 렘에 회원정보 저장 */
             realm.beginTransaction()
             val number = realm.where(Person::class.java).count() + 1
 
@@ -165,25 +153,23 @@ class JoinActivity : AppCompatActivity() {
 
             Toasty.success(this, "저장 성공", Toast.LENGTH_SHORT, true).show();
 
-            val i = Intent(this, MainActivity::class.java)
-            //i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(i)
+            startActivity<MainActivity>()
             finish()
         }
 
     }
 
+    /** 버튼 활성화 관련 옵저버 observableDoubleId 에 불린 값 전달 */
     private fun checkDoubleIdForButton(t: CharSequence?) : Boolean {
         val config = RealmConfiguration.Builder().name("person.realm").build()
         val realm = Realm.getInstance(config)
         var count = realm.where(Person::class.java).equalTo("userId", t.toString()).findAll().count()
-
+        // 중복 아이디 없으면 트루 전달
         if (count == 0) { return true } else { return false }
     }
 
 
-    /** 패턴 오류 메세지 관련 */
+    /** 패턴들 오류 메세지 관련 */
     private inline fun retryWhenError(crossinline onError: (ex: Throwable) -> Unit): ObservableTransformer<String, String> = ObservableTransformer { observable ->
         observable.retryWhen { errors ->
             errors.flatMap {
