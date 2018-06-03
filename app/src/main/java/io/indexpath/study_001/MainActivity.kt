@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
                 val lastUser = user.last()
                 if (editTextPassword.text.toString() != lastUser?.password.toString()) {
-                    Toast.makeText(this,"패스워드 틀림",Toast.LENGTH_SHORT).show()
+                    Toasty.error(this, "패스워드 틀림", Toast.LENGTH_SHORT, true).show()
 
                 } else {
 
@@ -107,13 +107,14 @@ class MainActivity : AppCompatActivity() {
 
                     if (checkAutoLogin.isChecked) {
                         editor.putBoolean("autoLogin", true)
-                        editor.putString("id", editTextId.text.toString())
-                        editor.putString("password", editTextPassword.text.toString())
+
 
                     } else {
                         editor.putBoolean("autoLogin", false)
                     }
 
+                    editor.putString("id", editTextId.text.toString())
+                    editor.putString("password", editTextPassword.text.toString())
                     editor.apply()
 
                     Toasty.success(this, "로그인 성공", Toast.LENGTH_SHORT, true).show()

@@ -127,7 +127,7 @@ class JoinActivity : AppCompatActivity() {
         )
 
         val signInEnabled: Observable<Boolean> = Observable.combineLatest(
-                signInEnabled3, observableDoubleId, BiFunction { s1, s2 -> s1 && s2 }
+                signInEnabled3, observableDoubleId, BiFunction { s1, s2 -> s1 && s2}
         )
 
         // 버튼 활성하면서 색상도 변경

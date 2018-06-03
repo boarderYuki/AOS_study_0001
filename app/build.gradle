@@ -39,7 +39,7 @@ dependencies {
     // 토스트메세지
     implementation 'com.github.GrenderG:Toasty:1.3.0'
     //RX
-    implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.0.0'
+    implementation 'com.jakewharton.rxbinding2:rxbinding-kotlin:2.1.1'
 
     // Anko Commons
     implementation "org.jetbrains.anko:anko-commons:$anko_version"

@@ -16,13 +16,13 @@ class ResultActivity : AppCompatActivity() {
 
         /** 로그인 한 유저 정보 출력 */
         val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
-        loginUser.text = "Login User ID : ${myPref.getString("id", "")}"
-        loginPassword.text = "Login User ID : ${myPref.getString("password", "")}"
+        loginUser.text = "ID : ${myPref.getString("id", "")}"
+        loginPassword.text = "PW : ${myPref.getString("password", "")}"
 
         val autoLogin = myPref.getBoolean("autoLogin", false)
 
-        if (autoLogin) isAutoLogin.text = "자동 로그인 선택함"
-        else isAutoLogin.text = "자동 로그인 선택 안 함"
+        if (autoLogin) isAutoLogin.text = "자동 로그인 사용중"
+        else isAutoLogin.text = "자동 로그인 사용안함"
 
         /** 로그 아웃 버튼
          * 클릭하면 자동로그인 체크 여부 지우고 메인 화면으로 이동함

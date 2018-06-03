@@ -4,101 +4,128 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ResultActivity">
+    tools:context=".ResultActivity"
+    tools:layout_editor_absoluteY="25dp">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="@android:dimen/notification_large_icon_width"
+        android:layout_marginBottom="8dp"
         android:background="@color/statusBar"
-        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLogOut"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:layout_height="match_parent"
+            android:layout_gravity="left"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="11dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_gravity="left|center_vertical"
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/successTitle"
                 android:textColor="#fff"
-                android:textSize="20sp"/>
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+                app:layout_constraintStart_toStartOf="@+id/toolbar"
+                app:layout_constraintTop_toTopOf="parent" />
         </FrameLayout>
 
     </android.support.v7.widget.Toolbar>
 
     <TextView
         android:id="@+id/loginResult"
-        android:layout_width="0dp"
+        android:layout_width="368dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="119dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="33dp"
         android:gravity="center_vertical"
         android:text="@string/auccessLogin"
         android:textAlignment="center"
         android:textSize="30sp"
-        app:layout_constraintBottom_toTopOf="@+id/loginUser"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        tools:layout_editor_absoluteY="93dp" />
+
+    <TextView
+        android:id="@+id/loginPassword"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="@string/textview"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/loginUser"
+        app:layout_constraintEnd_toStartOf="@+id/isAutoLogin"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/loginUser" />
+
+    <TextView
+        android:id="@+id/loginUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:text="@string/loginUser"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLogOut"
+        app:layout_constraintEnd_toStartOf="@+id/loginPassword"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/isAutoLogin"
+        android:layout_width="0dp"
+        android:layout_height="17dp"
+        android:layout_marginEnd="16dp"
+        android:text="TextView"
+        android:textAlignment="textEnd"
+        android:textSize="14sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/loginPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintStart_toEndOf="@+id/loginPassword" />
+
+    <ImageButton
+        android:id="@+id/imageButton2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/transparent"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:srcCompat="@drawable/btn_addtodo" />
 
     <Button
         android:id="@+id/buttonLogOut"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="57dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
         android:background="@color/statusBar"
         android:elevation="0dp"
         android:text="@string/logOut"
         android:textColor="#fff"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/isAutoLogin" />
-
-    <TextView
-        android:id="@+id/loginPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/textview"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/isAutoLogin"
-        app:layout_constraintEnd_toEndOf="@+id/loginUser"
-        app:layout_constraintStart_toStartOf="@+id/loginUser"
-        app:layout_constraintTop_toBottomOf="@+id/loginUser" />
-
-    <TextView
-        android:id="@+id/loginUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:text="@string/loginUser"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/loginPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginResult" />
-
-    <TextView
-        android:id="@+id/isAutoLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:text="TextView"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toTopOf="@+id/buttonLogOut"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/loginPassword" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

@@ -17,6 +17,6 @@
     <string name="auccessLogin">로그인 성공</string>
     <string name="textview">loginPassword</string>
     <string name="loginUser">TextView</string>
-    <string name="successTitle">Success</string>
+    <string name="successTitle">To Do</string>
     <string name="sign_up">Sign Up</string>
 </resources>
