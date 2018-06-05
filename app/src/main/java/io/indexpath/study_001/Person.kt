@@ -24,9 +24,11 @@ open class Person(): RealmObject() {
 
 open class TodoList: RealmObject() {
 
+
     var id: Long = 0
     var owner: String? = null
+    var cDate: String = ""
     var content: String? = null
-    var isFinish: Boolean? = null
+    var isFinish: Boolean = false
 }
 

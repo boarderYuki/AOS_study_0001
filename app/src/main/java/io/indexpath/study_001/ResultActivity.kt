@@ -7,6 +7,7 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.util.Log.d
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ import android.widget.Toast
 import es.dmoral.toasty.Toasty
 import io.realm.Realm
 import io.realm.RealmConfiguration
+import io.realm.RealmResults
 import kotlinx.android.synthetic.main.activity_result.*
 import kotlinx.android.synthetic.main.dialog_custom.view.*
 import org.jetbrains.anko.startActivity
@@ -30,8 +32,8 @@ class ResultActivity : AppCompatActivity() {
         setContentView(R.layout.activity_result)
 
         Realm.init(this)
-        val config = RealmConfiguration.Builder().name("person.realm").build()
-        val realm = Realm.getInstance(config)
+//        val config = RealmConfiguration.Builder().name("person.realm").build()
+//        val realm = Realm.getInstance(config)
 
 
 
@@ -44,6 +46,10 @@ class ResultActivity : AppCompatActivity() {
 
         if (autoLogin) isAutoLogin.text = "자동 로그인 사용중"
         else isAutoLogin.text = "자동 로그인 사용안함"
+
+        /** 투두리스트 가져오기 */
+        todoLists = realm.where(TodoList::class.java).equalTo("owner", "${myPref.getString("id", "")}" ).findAll()
+
 
         /** 로그 아웃 버튼
          * 클릭하면 자동로그인 체크 여부 지우고 메인 화면으로 이동함
@@ -79,72 +85,33 @@ class ResultActivity : AppCompatActivity() {
                 if (todoText.isNotBlank()) {
                     val finalTodoText = removeExtraWhiteSpaces(todoText.toString())
 
+                    // 타임스탬프 미니멈 API 26 필요함
+                    val current = LocalDateTime.now()
+                    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+                    val formatted = current.format(formatter)
 
+                    /** 렘에 투두 목록을 유저아이디 owner로 저장 */
+                    loginUserName = myPref.getString("id", "")
 
-                    /** 렘에 회원정보 저장 */
                     realm.beginTransaction()
-                    //val contentDB = realm.where(Todo::class.java)
-                    //val number = realm.where(Person::class.java).count() + 1
-
-
-                    var loginUserName = myPref.getString("id", "")
-                    //var person = realm.where(Person::class.java).equalTo("userId", "$loginUserName").findAll()
-                    //val person = realm.createObject(Person::class.java)
-
-                    //val todoDB = realm.createObject(Todo::class.java)
-
-//                    todoDB.content = finalTodoText.toString()
-//                    todoDB.isFinish = false
-//                    person.todoList
-
                     val number = realm.where(TodoList::class.java).count() + 1
                     val todoDB = realm.createObject(TodoList::class.java)
                     todoDB.id = number
                     todoDB.owner = loginUserName
+                    todoDB.cDate = formatted
                     todoDB.content = finalTodoText
                     todoDB.isFinish = false
 
                     realm.commitTransaction()
 
-                    // 타임스탬프 미니멈 API 26
-                    val current = LocalDateTime.now()
-                    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
-                    val formatted = current.format(formatter)
-
                     Toasty.success(this, "Current : $formatted :: $loginUserName :: $finalTodoText", Toast.LENGTH_SHORT, true).show()
                     customDialog.dismiss()
 
                 } else {
-                    //Toast.makeText(baseContext, "내용이 없습니다.", Toast.LENGTH_LONG).show()
                     Toasty.error(this, "내용이 없습니다.", Toast.LENGTH_SHORT, true).show()
                 }
             })
         }
-
-//        btnAddTodo.setOnClickListener {
-////            val mDialogView = LayoutInflater.from(this).inflate(R.layout.dialog_custom, null)
-////            val mBuilder = AlertDialog.Builder(this)
-////                    .setView(mDialogView)
-////                    //.setTitle("input todo")
-////
-////            val mAlertDialog = mBuilder.show()
-//
-//
-////            todoAlert.setButton(AlertDialog.BUTTON_POSITIVE, "OK", {
-////                _,_ ->
-////
-////                val text = todoAlert.textViewTodo.text
-////                Toast.makeText(this, "text : $text", Toast.LENGTH_LONG).show()
-////            })
-////
-////            todoAlert.setButton(AlertDialog.BUTTON_NEGATIVE, "CANCEL", {
-////                _,_ ->
-////                todoAlert.dismiss()
-////            })
-//
-//            todoAlert.show()
-//        }
-
 
         recyclerView.adapter = MainRecyclerViewAdapter()
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -155,9 +122,10 @@ class ResultActivity : AppCompatActivity() {
 
     class MainRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-        var todoLists = arrayOf("111", "222", "333", "444", "555")
+        //var todoLists = arrayOf("111", "222", "333", "444", "555")
 
-        var todoBoolean = arrayOf(true, false, true, true, true)
+        //var todoLists = realm.where(TodoList::class.java).equalTo("owner", "$loginUserName" ).findAll()
+        //var todoBoolean = arrayOf(true, false, true, true, true)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             var view = LayoutInflater.from(parent!!.context).inflate(R.layout.cell_layout, parent,false)
@@ -165,25 +133,42 @@ class ResultActivity : AppCompatActivity() {
         }
 
         class CustomViewHolder(view: View?) : RecyclerView.ViewHolder(view) {
+            var createDateText : TextView? = null
             var textview : TextView? = null
             var cellCheckBox : CheckBox? = null
 
             init {
+                createDateText = view!!.findViewById(R.id.createDate)
                 textview = view!!.findViewById(R.id.todoContent)
                 cellCheckBox = view.findViewById(R.id.cellCheckBox)
 
             }
+
+
+
         }
 
+
         override fun getItemCount(): Int {
-            return todoLists.size
+
+            d(TAG, "todoLists.count : " + todoLists!!.count())
+            return todoLists!!.count()
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
             var view = holder as CustomViewHolder
-            view.textview!!.text = todoLists[position]
-            view.cellCheckBox!!.setChecked(todoBoolean[position])
+            view.createDateText!!.text = todoLists!![position]!!.cDate
+            view.textview!!.text = todoLists!![position]!!.content.toString()
+            view.cellCheckBox!!.setChecked(todoLists!![position]!!.isFinish)
+
+            var cb = view.cellCheckBox
+            cb!!.setOnClickListener {
+                
+            }
+
         }
+
+
 
     }
 
@@ -202,6 +187,18 @@ class ResultActivity : AppCompatActivity() {
         }
 
         return result
+    }
+
+
+    companion object {
+        private val TAG = "Study001"
+
+        var loginUserName : String = ""
+
+        val config = RealmConfiguration.Builder().name("person.realm").build()
+        val realm = Realm.getInstance(config)
+        //Realm.init(this)
+        var todoLists : RealmResults<TodoList>? = null
     }
 
 }
