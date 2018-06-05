@@ -151,7 +151,7 @@ class ResultActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int {
 
-            d(TAG, "todoLists.count : " + todoLists!!.count())
+
             return todoLists!!.count()
         }
 
@@ -163,7 +163,15 @@ class ResultActivity : AppCompatActivity() {
 
             var cb = view.cellCheckBox
             cb!!.setOnClickListener {
-                
+                realm.beginTransaction()
+                if (cb.isChecked) {
+                    todoLists!![position]!!.isFinish = true
+                    d(TAG, " 체크박스 선택 : ")
+                } else {
+                    todoLists!![position]!!.isFinish = false
+                    d(TAG, " 체크박스 해제 : ")
+                }
+                realm.commitTransaction()
             }
 
         }
