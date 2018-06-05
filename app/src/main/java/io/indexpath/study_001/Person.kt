@@ -12,9 +12,21 @@ import io.realm.annotations.RealmClass
 
 @RealmClass
 open class Person(): RealmObject() {
+
     @PrimaryKey
     var id: Long = 0
-    var userId : String? = null
+    var userId: String? = null
     var email: String? = null
     var password: String? = null
+    //var todoList: RealmList<TodoList> = RealmList()
 }
+
+
+open class TodoList: RealmObject() {
+
+    var id: Long = 0
+    var owner: String? = null
+    var content: String? = null
+    var isFinish: Boolean? = null
+}
+
