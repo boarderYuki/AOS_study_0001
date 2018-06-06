@@ -12,18 +12,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import es.dmoral.toasty.Toasty
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.RealmResults
+import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_result.*
 import kotlinx.android.synthetic.main.dialog_custom.view.*
 import org.jetbrains.anko.startActivity
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.*
 
 class ResultActivity : AppCompatActivity() {
 
@@ -32,10 +35,6 @@ class ResultActivity : AppCompatActivity() {
         setContentView(R.layout.activity_result)
 
         Realm.init(this)
-//        val config = RealmConfiguration.Builder().name("person.realm").build()
-//        val realm = Realm.getInstance(config)
-
-
 
         /** 로그인 한 유저 정보 출력 */
         val myPref = getSharedPreferences("myPref", Context.MODE_PRIVATE)
@@ -48,7 +47,7 @@ class ResultActivity : AppCompatActivity() {
         else isAutoLogin.text = "자동 로그인 사용안함"
 
         /** 투두리스트 가져오기 */
-        todoLists = realm.where(TodoList::class.java).equalTo("owner", "${myPref.getString("id", "")}" ).findAll()
+        todoLists = realm.where(TodoList::class.java).equalTo("owner", "${myPref.getString("id", "")}" ).sort("id", Sort.DESCENDING).findAll()
 
 
         /** 로그 아웃 버튼
@@ -63,9 +62,11 @@ class ResultActivity : AppCompatActivity() {
             startActivity<MainActivity>()
             finish()
 
+
             Toasty.success(this, "로그아웃 되었습니다.", Toast.LENGTH_SHORT, true).show()
         }
 
+        /** 투두리스트 입력 */
         btnAddTodo.setOnClickListener {
 
             val dialog = AlertDialog.Builder(this)
@@ -80,21 +81,21 @@ class ResultActivity : AppCompatActivity() {
             val customDialog = dialog.create()
             customDialog.show()
 
-
             customDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener({
                 if (todoText.isNotBlank()) {
                     val finalTodoText = removeExtraWhiteSpaces(todoText.toString())
 
                     // 타임스탬프 미니멈 API 26 필요함
                     val current = LocalDateTime.now()
-                    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+                    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
                     val formatted = current.format(formatter)
 
                     /** 렘에 투두 목록을 유저아이디 owner로 저장 */
                     loginUserName = myPref.getString("id", "")
 
                     realm.beginTransaction()
-                    val number = realm.where(TodoList::class.java).count() + 1
+                    //val number = realm.where(TodoList::class.java).count() + 1
+                    val number = Date()
                     val todoDB = realm.createObject(TodoList::class.java)
                     todoDB.id = number
                     todoDB.owner = loginUserName
@@ -104,28 +105,24 @@ class ResultActivity : AppCompatActivity() {
 
                     realm.commitTransaction()
 
-                    Toasty.success(this, "Current : $formatted :: $loginUserName :: $finalTodoText", Toast.LENGTH_SHORT, true).show()
+                    /** 데이타가 추가되면 리사이클뷰를 다시 그리는 것 같음 */
+                    recyclerView.adapter.notifyDataSetChanged()
+                    //Toasty.success(this, "Current : $number :: $loginUserName :: $finalTodoText", Toast.LENGTH_SHORT, true).show()
                     customDialog.dismiss()
 
                 } else {
+                    // 공백만 있거나 내용이 없는 경우
                     Toasty.error(this, "내용이 없습니다.", Toast.LENGTH_SHORT, true).show()
                 }
+
             })
         }
-
         recyclerView.adapter = MainRecyclerViewAdapter()
         recyclerView.layoutManager = LinearLayoutManager(this)
-
-
     }
 
 
     class MainRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-        //var todoLists = arrayOf("111", "222", "333", "444", "555")
-
-        //var todoLists = realm.where(TodoList::class.java).equalTo("owner", "$loginUserName" ).findAll()
-        //var todoBoolean = arrayOf(true, false, true, true, true)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             var view = LayoutInflater.from(parent!!.context).inflate(R.layout.cell_layout, parent,false)
@@ -136,22 +133,17 @@ class ResultActivity : AppCompatActivity() {
             var createDateText : TextView? = null
             var textview : TextView? = null
             var cellCheckBox : CheckBox? = null
+            var btnDel : ImageButton? = null
 
             init {
                 createDateText = view!!.findViewById(R.id.createDate)
                 textview = view!!.findViewById(R.id.todoContent)
                 cellCheckBox = view.findViewById(R.id.cellCheckBox)
-
+                btnDel = view!!.findViewById(R.id.btnDel)
             }
-
-
-
         }
 
-
         override fun getItemCount(): Int {
-
-
             return todoLists!!.count()
         }
 
@@ -162,6 +154,11 @@ class ResultActivity : AppCompatActivity() {
             view.cellCheckBox!!.setChecked(todoLists!![position]!!.isFinish)
 
             var cb = view.cellCheckBox
+            var btnDel = view.btnDel
+
+            /** 바인더는 온리 바인더 용도로만 사용하고
+             * 클릭리스너 달지 말라는데 방법을 몰라서.. 그냥 달아버림 */
+
             cb!!.setOnClickListener {
                 realm.beginTransaction()
                 if (cb.isChecked) {
@@ -172,15 +169,25 @@ class ResultActivity : AppCompatActivity() {
                     d(TAG, " 체크박스 해제 : ")
                 }
                 realm.commitTransaction()
+                notifyDataSetChanged()
             }
 
+            btnDel!!.setOnClickListener{
+                realm.beginTransaction()
+
+                todoLists!![position]!!.deleteFromRealm()
+                realm.commitTransaction()
+
+                notifyItemRemoved(position)
+                notifyDataSetChanged()
+                d(TAG, " 삭제버튼 클릭 : ${position} ")
+
+            }
         }
-
-
-
     }
 
 
+    // 공백 검사
     fun removeExtraWhiteSpaces(value: String): String {
 
         var result = ""
@@ -205,15 +212,7 @@ class ResultActivity : AppCompatActivity() {
 
         val config = RealmConfiguration.Builder().name("person.realm").build()
         val realm = Realm.getInstance(config)
-        //Realm.init(this)
         var todoLists : RealmResults<TodoList>? = null
     }
 
 }
-
-
-
-
-
-
-

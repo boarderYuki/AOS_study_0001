@@ -3,6 +3,7 @@ package io.indexpath.study_001
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import io.realm.annotations.RealmClass
+import java.util.*
 
 /**
  * Study_001
@@ -25,10 +26,11 @@ open class Person(): RealmObject() {
 open class TodoList: RealmObject() {
 
 
-    var id: Long = 0
+    var id: Date? = null
     var owner: String? = null
     var cDate: String = ""
     var content: String? = null
     var isFinish: Boolean = false
+
 }
 

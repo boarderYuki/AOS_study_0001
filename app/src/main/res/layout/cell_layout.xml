@@ -4,20 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp">
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
 
     <TextView
         android:id="@+id/todoContent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:text="TextView"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/cellCheckBox"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnDel"
+        app:layout_constraintStart_toEndOf="@+id/cellCheckBox"
         app:layout_constraintTop_toBottomOf="@+id/createDate" />
 
     <CheckBox
@@ -25,7 +25,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBaseline_toBaselineOf="@+id/todoContent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/todoContent"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/createDate"
@@ -41,8 +43,22 @@
         android:id="@+id/divider"
         android:layout_width="0dp"
         android:layout_height="1dp"
+        android:layout_marginBottom="16dp"
         android:background="?android:attr/listDivider"
+        app:layout_constraintBottom_toTopOf="@+id/createDate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnDel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/createDate"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/ic_del" />
+
 </android.support.constraint.ConstraintLayout>
