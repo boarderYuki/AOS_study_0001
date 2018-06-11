@@ -105,7 +105,6 @@ class ResultActivity : AppCompatActivity() {
 
                     /** 데이타가 추가되면 리사이클뷰를 다시 그리는 것 같음 */
                     recyclerView.adapter.notifyDataSetChanged()
-                    //Toasty.success(this, "Current : $number :: $loginUserName :: $finalTodoText", Toast.LENGTH_SHORT, true).show()
                     customDialog.dismiss()
 
                 } else {
@@ -117,6 +116,7 @@ class ResultActivity : AppCompatActivity() {
         }
 
 
+        /** 바인더에서 클릭리스너를 받아 옴*/
         recyclerView.adapter = MainRecyclerViewAdapter(this, null, object : OnItemClickListener{
             override fun checkBoxClick(position: Int) {
                 realm.beginTransaction()
@@ -132,6 +132,7 @@ class ResultActivity : AppCompatActivity() {
 
             override fun itemDeleteClick(position: Int) {
 
+                /** 다이얼로그 처리시 삭제한게 바로 적용되지 않는 문제가 있음*/
 //                alert(title = "삭제하시겠습니까?", message = "") {
 //                    positiveButton("OK", {
 //                        realm.beginTransaction()
@@ -154,10 +155,10 @@ class ResultActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
+    /** 바인더와 어댑터를 연결 */
     interface OnItemClickListener {
         fun checkBoxClick(position: Int)
         fun itemDeleteClick(position: Int)
-
     }
 
     class MainRecyclerViewAdapter(val context: Context, val dataList: List<TodoList>?, val listener: OnItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -194,23 +195,17 @@ class ResultActivity : AppCompatActivity() {
             var cb = view.cellCheckBox
             var btnDel = view.btnDel
 
-            /** 바인더는 온리 바인더 용도로만 사용하고
-             * 클릭리스너 달지 말라는데 방법을 몰라서.. 그냥 달아버림 */
-
+            /** 어댑터로 연결 됨 */
             cb!!.setOnClickListener {
-
                 listener.checkBoxClick(position)
                 notifyDataSetChanged()
             }
 
             btnDel!!.setOnClickListener{
-
                 listener.itemDeleteClick(position)
                 notifyDataSetChanged()
                 d(TAG, " 삭제버튼 클릭 : ${position} ")
-
             }
-
         }
     }
 
