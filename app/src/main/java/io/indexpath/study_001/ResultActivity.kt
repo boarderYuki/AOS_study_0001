@@ -115,12 +115,52 @@ class ResultActivity : AppCompatActivity() {
 
             })
         }
-        recyclerView.adapter = MainRecyclerViewAdapter()
+
+
+        recyclerView.adapter = MainRecyclerViewAdapter(this, null, object : OnItemClickListener{
+            override fun checkBoxClick(position: Int) {
+                realm.beginTransaction()
+                if (!todoLists!![position]!!.isFinish) {
+                    todoLists!![position]!!.isFinish = true
+                    d(TAG, " 체크박스 선택 : ")
+                } else {
+                    todoLists!![position]!!.isFinish = false
+                    d(TAG, " 체크박스 해제 : ")
+                }
+                realm.commitTransaction()
+            }
+
+            override fun itemDeleteClick(position: Int) {
+
+//                alert(title = "삭제하시겠습니까?", message = "") {
+//                    positiveButton("OK", {
+//                        realm.beginTransaction()
+//                        todoLists!![position]!!.deleteFromRealm()
+//                        realm.commitTransaction()
+//                    })
+//
+//                    negativeButton("CANCEL") {
+//                        it.dismiss()
+//                    }
+//                }.show()
+
+                realm.beginTransaction()
+                todoLists!![position]!!.deleteFromRealm()
+                realm.commitTransaction()
+
+                d(TAG, " 삭제버튼 리스너 : ${position} ")
+            }
+        })
         recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
+    interface OnItemClickListener {
+        fun checkBoxClick(position: Int)
+        fun itemDeleteClick(position: Int)
 
-    class MainRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    }
+
+    class MainRecyclerViewAdapter(val context: Context, val dataList: List<TodoList>?, val listener: OnItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
             var view = LayoutInflater.from(parent!!.context).inflate(R.layout.cell_layout, parent,false)
@@ -158,29 +198,19 @@ class ResultActivity : AppCompatActivity() {
              * 클릭리스너 달지 말라는데 방법을 몰라서.. 그냥 달아버림 */
 
             cb!!.setOnClickListener {
-                realm.beginTransaction()
-                if (cb.isChecked) {
-                    todoLists!![position]!!.isFinish = true
-                    d(TAG, " 체크박스 선택 : ")
-                } else {
-                    todoLists!![position]!!.isFinish = false
-                    d(TAG, " 체크박스 해제 : ")
-                }
-                realm.commitTransaction()
+
+                listener.checkBoxClick(position)
                 notifyDataSetChanged()
             }
 
             btnDel!!.setOnClickListener{
-                realm.beginTransaction()
 
-                todoLists!![position]!!.deleteFromRealm()
-                realm.commitTransaction()
-
-                notifyItemRemoved(position)
+                listener.itemDeleteClick(position)
                 notifyDataSetChanged()
                 d(TAG, " 삭제버튼 클릭 : ${position} ")
 
             }
+
         }
     }
 
