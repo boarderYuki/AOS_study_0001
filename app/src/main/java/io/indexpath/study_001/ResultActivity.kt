@@ -94,10 +94,8 @@ class ResultActivity : AppCompatActivity() {
                     loginUserName = myPref.getString("id", "")
 
                     realm.beginTransaction()
-                    //val number = realm.where(TodoList::class.java).count() + 1
-                    val number = Date()
                     val todoDB = realm.createObject(TodoList::class.java)
-                    todoDB.id = number
+                    todoDB.id = Date()
                     todoDB.owner = loginUserName
                     todoDB.cDate = formatted
                     todoDB.content = finalTodoText
