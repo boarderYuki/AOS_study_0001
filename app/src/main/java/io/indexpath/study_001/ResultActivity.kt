@@ -22,6 +22,7 @@ import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_result.*
 import kotlinx.android.synthetic.main.dialog_custom.view.*
+import org.jetbrains.anko.alert
 import org.jetbrains.anko.startActivity
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -133,21 +134,23 @@ class ResultActivity : AppCompatActivity() {
             override fun itemDeleteClick(position: Int) {
 
                 /** 다이얼로그 처리시 삭제한게 바로 적용되지 않는 문제가 있음*/
-//                alert(title = "삭제하시겠습니까?", message = "") {
-//                    positiveButton("OK", {
-//                        realm.beginTransaction()
-//                        todoLists!![position]!!.deleteFromRealm()
-//                        realm.commitTransaction()
-//                    })
-//
-//                    negativeButton("CANCEL") {
-//                        it.dismiss()
-//                    }
-//                }.show()
+                alert(title = "삭제하시겠습니까?", message = "") {
+                    positiveButton("OK", {
+                        realm.beginTransaction()
+                        todoLists!![position]!!.deleteFromRealm()
+                        realm.commitTransaction()
+                        recyclerView.adapter.notifyDataSetChanged()
+                    })
 
-                realm.beginTransaction()
-                todoLists!![position]!!.deleteFromRealm()
-                realm.commitTransaction()
+                    negativeButton("CANCEL") {
+                        it.dismiss()
+                    }
+                }.show()
+
+
+//                realm.beginTransaction()
+//                todoLists!![position]!!.deleteFromRealm()
+//                realm.commitTransaction()
 
                 d(TAG, " 삭제버튼 리스너 : ${position} ")
             }
